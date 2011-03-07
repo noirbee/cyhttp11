@@ -9,7 +9,8 @@ cyhttp11_la_LDFLAGS = -avoid-version -module
 nodist_cyhttp11_la_SOURCES = cyhttp11.c http11_parser.c httpclient_parser.c
 
 EXTRA_DIST = LICENSE LICENSE.mongrel2 README.rst \
-	cyhttp11.pyx cyhttp11.pxd http11_parser.rl httpclient_parser.rl http11_common.rl
+	cyhttp11.pyx cyhttp11.pxd http11_parser.rl httpclient_parser.rl http11_common.rl \
+	${BUILT_SOURCES}
 
 BUILT_SOURCES = cyhttp11.c http11_parser.c httpclient_parser.c
 CLEANFILES = cyhttp11.c http11_parser.c httpclient_parser.c
