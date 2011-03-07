@@ -5,7 +5,8 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
-ext_modules = [Extension('cyhttp11', ['cyhttp11.pyx', 'cyhttp11.pxd', 'http11_parser.c',])]
+ext_modules = [Extension('cyhttp11', ['cyhttp11.pyx', 'cyhttp11.pxd',
+                                      'http11_parser.c', 'httpclient_parser.c'])]
 
 setup(
     name = 'cyhttp11',

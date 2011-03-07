@@ -26,6 +26,13 @@ cdef void _request_path(void *data, char *at, size_t length):
 cdef void _query_string(void *data, char *at, size_t length):
     _element_cb(data, 'query_string', at, length)
 
+cdef void _status_code(void *data, char *at, size_t length):
+    result = <object>data
+    result.status_code = int(at[:length])
+
+cdef void _reason_phrase(void *data, char *at, size_t length):
+    _element_cb(data, 'reason_phrase', at, length)
+
 cdef void _http_version(void *data, char *at, size_t length):
     _element_cb(data, 'http_version', at, length)
 
@@ -78,6 +85,47 @@ cdef class HttpParser:
             self.fragment = ''
             self.request_path = ''
             self.query_string = ''
+            self.http_version = ''
+            self.body = ''
+
+cdef class HttpClientParser:
+        """
+        This is a docstring for this class.
+        """
+        cdef cyhttp11.httpclient_parser _httpclient_parser
+        cdef public dict headers
+        cdef public int status_code
+        cdef public str reason_phrase
+        cdef public str http_version
+        cdef public str body
+
+        def __cinit__(self):
+            self._httpclient_parser.data = <void*>self
+            self._httpclient_parser.http_field = <field_cb>_http_field
+            self._httpclient_parser.status_code = <element_cb>_status_code
+            self._httpclient_parser.reason_phrase = <element_cb>_reason_phrase
+
+            self._httpclient_parser.http_version = <element_cb>_http_version
+            self._httpclient_parser.header_done = <element_cb>_header_done
+            self.reset()
+
+        def execute(self, bytes):
+            return cyhttp11.httpclient_parser_execute(&self._httpclient_parser,
+                                                 bytes,
+                                                 len(bytes),
+                                                 self._httpclient_parser.nread)
+
+        def is_finished(self):
+            return cyhttp11.httpclient_parser_is_finished(&self._httpclient_parser)
+
+        def has_error(self):
+            return cyhttp11.httpclient_parser_has_error(&self._httpclient_parser)
+
+        def reset(self):
+            cyhttp11.httpclient_parser_init(&self._httpclient_parser)
+            self.headers = {}
+            self.status_code = -1
+            self.reason_phrase = ''
             self.http_version = ''
             self.body = ''
 

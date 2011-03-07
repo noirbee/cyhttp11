@@ -32,7 +32,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "http11_parser.h"
+#include "httpclient_parser.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -43,67 +43,40 @@
 #define MARK(M,FPC) (parser->M = (FPC) - buffer)
 #define PTR_TO(F) (buffer + parser->F)
 
-/** Machine **/
 
+/** machine **/
 %%{
+    machine httpclient_parser;
 
-  machine http_parser;
+    include http_parser_common "http11_common.rl";
 
-  include http_parser_common "http11_common.rl";
+    action reason_phrase {
+        if(parser->reason_phrase != NULL)
+            parser->reason_phrase(parser->data, PTR_TO(mark), LEN(mark, fpc));
+    }
 
-  action request_method {
-    if(parser->request_method != NULL)
-      parser->request_method(parser->data, PTR_TO(mark), LEN(mark, fpc));
-  }
+    action status_code {
+        parser->status = strtol(PTR_TO(mark), NULL, 10);
 
-  action request_uri {
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, fpc));
-  }
+        if(parser->status_code != NULL)
+            parser->status_code(parser->data, PTR_TO(mark), LEN(mark, fpc));
+    }
 
-  action fragment {
-    if(parser->fragment != NULL)
-      parser->fragment(parser->data, PTR_TO(mark), LEN(mark, fpc));
-  }
+    Reason_Phrase = (any -- CRLF)+ >mark %reason_phrase;
+    Status_Code = digit+ >mark %status_code;
 
-  action start_query {MARK(query_start, fpc); }
-  action query_string {
-    if(parser->query_string != NULL)
-      parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, fpc));
-  }
+    Status_Line = HTTP_Version " " Status_Code " " Reason_Phrase :> CRLF;
 
-  action request_path {
-    if(parser->request_path != NULL)
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,fpc));
-  }
+    Response = 	Status_Line (message_header)* (CRLF @done);
 
-# URI schemes and absolute paths
-  scheme = "http";
-  absolute_uri = (scheme ":" (uchar | reserved )*);
-
-  path = ( pchar+ ( "/" pchar* )* ) ;
-  query = ( uchar | reserved )* %query_string ;
-  param = ( pchar | "/" )* ;
-  params = ( param ( ";" param )* ) ;
-  rel_path = ( path? %request_path (";" params)? ) ("?" %start_query query)?;
-  absolute_path = ( "/"+ rel_path );
-
-  Request_URI = ( "*" | absolute_uri | absolute_path ) >mark %request_uri;
-  Fragment = ( uchar | reserved )* >mark %fragment;
-  Method = ( upper | digit | safe ){1,20} >mark %request_method;
-
-  Request_Line = ( Method " " Request_URI ("#" Fragment){0,1} " " HTTP_Version CRLF ) ;
-
-  Request = Request_Line ( message_header )* ( CRLF @done );
-
-main := Request;
+main := Response;
 
 }%%
 
 /** Data **/
 %% write data;
 
-int http_parser_init(http_parser *parser) {
+int httpclient_parser_init(httpclient_parser *parser)  {
   int cs = 0;
 
   %% write init;
@@ -120,7 +93,7 @@ int http_parser_init(http_parser *parser) {
 
 
 /** exec **/
-size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, size_t off)
+size_t httpclient_parser_execute(httpclient_parser *parser, const char *buffer, size_t len, size_t off)
 {
   if(len == 0) return 0;
 
@@ -138,7 +111,7 @@ size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, 
 
   assert(p <= pe && "Buffer overflow after parsing.");
 
-  if (!http_parser_has_error(parser)) {
+  if (!httpclient_parser_has_error(parser)) {
       parser->cs = cs;
   }
 
@@ -153,21 +126,21 @@ size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, 
   return(parser->nread);
 }
 
-int http_parser_finish(http_parser *parser)
+int httpclient_parser_finish(httpclient_parser *parser)
 {
-  if (http_parser_has_error(parser) ) {
+  if (httpclient_parser_has_error(parser) ) {
     return -1;
-  } else if (http_parser_is_finished(parser) ) {
+  } else if (httpclient_parser_is_finished(parser) ) {
     return 1;
   } else {
     return 0;
   }
 }
 
-int http_parser_has_error(http_parser *parser) {
-  return parser->cs == http_parser_error;
+int httpclient_parser_has_error(httpclient_parser *parser) {
+  return parser->cs == httpclient_parser_error;
 }
 
-int http_parser_is_finished(http_parser *parser) {
-  return parser->cs >= http_parser_first_final;
+int httpclient_parser_is_finished(httpclient_parser *parser) {
+  return parser->cs >= httpclient_parser_first_final;
 }
