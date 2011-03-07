@@ -39,7 +39,7 @@ cdef void _http_version(void *data, char *at, size_t length):
 cdef void _header_done(void *data, char *at, size_t length):
     _element_cb(data, 'body', at, length)
 
-cdef class HttpParser:
+cdef class HTTPParser:
         """
         This is a docstring for this class.
         """
@@ -88,7 +88,7 @@ cdef class HttpParser:
             self.http_version = ''
             self.body = ''
 
-cdef class HttpClientParser:
+cdef class HTTPClientParser:
         """
         This is a docstring for this class.
         """
