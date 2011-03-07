@@ -7,33 +7,30 @@ cdef void _http_field(void *data, char *field, size_t flen, char *value, size_t 
     result = <object>data
     result.headers[field[:flen]] = value[:vlen]
 
-cdef void _request_method(void *data, char *at, size_t length):
+cdef void _element_cb(void *data, char *attribute, char *at, size_t length):
     result = <object>data
-    result.request_method = at[:length]
+    setattr(result, attribute, at[:length])
+
+cdef void _request_method(void *data, char *at, size_t length):
+    _element_cb(data, 'request_method', at, length)
 
 cdef void _request_uri(void *data, char *at, size_t length):
-    result = <object>data
-    result.request_uri = at[:length]
+    _element_cb(data, 'request_uri', at, length)
 
 cdef void _fragment(void *data, char *at, size_t length):
-    result = <object>data
-    result.fragment = at[:length]
+    _element_cb(data, 'fragment', at, length)
 
 cdef void _request_path(void *data, char *at, size_t length):
-    result = <object>data
-    result.request_path = at[:length]
+    _element_cb(data, 'request_path', at, length)
 
 cdef void _query_string(void *data, char *at, size_t length):
-    result = <object>data
-    result.query_string = at[:length]
+    _element_cb(data, 'query_string', at, length)
 
 cdef void _http_version(void *data, char *at, size_t length):
-    result = <object>data
-    result.http_version = at[:length]
+    _element_cb(data, 'http_version', at, length)
 
 cdef void _header_done(void *data, char *at, size_t length):
-    result = <object>data
-    result.body = at[:length]
+    _element_cb(data, 'body', at, length)
 
 cdef class HttpParser:
         """
