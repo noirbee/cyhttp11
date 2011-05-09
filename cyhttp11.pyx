@@ -5,16 +5,16 @@ cimport cyhttp11
 cdef class HTTPHeaders(dict):
 
     def __contains__(self, key):
-        return dict.__contains__(self, key.lower())
+        return dict.__contains__(self, key.capitalize())
 
     def __getitem__(self, key):
-        return dict.__getitem__(self, key.lower())
+        return dict.__getitem__(self, key.capitalize())
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key.lower(), value)
+        dict.__setitem__(self, key.capitalize(), value)
 
     def __delitem__(self, key):
-        dict.__delitem__(self, key.lower())
+        dict.__delitem__(self, key.capitalize())
 
 
 # The parser's callbacks
