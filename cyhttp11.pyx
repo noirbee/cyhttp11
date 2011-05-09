@@ -2,6 +2,21 @@
 
 cimport cyhttp11
 
+cdef class HTTPHeaders(dict):
+
+    def __contains__(self, key):
+        return dict.__contains__(self, key.lower())
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key.lower())
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key.lower(), value)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key.lower())
+
+
 # The parser's callbacks
 cdef void _http_field(void *data, char *field, size_t flen, char *value, size_t vlen):
     result = <object>data
@@ -44,7 +59,7 @@ cdef class HTTPParser:
         This is a docstring for this class.
         """
         cdef cyhttp11.http_parser _http_parser
-        cdef public dict headers
+        cdef public HTTPHeaders headers
         cdef public str request_method
         cdef public str request_uri
         cdef public str fragment
@@ -79,7 +94,7 @@ cdef class HTTPParser:
 
         def reset(self):
             cyhttp11.http_parser_init(&self._http_parser)
-            self.headers = {}
+            self.headers = HTTPHeaders()
             self.request_method = ''
             self.request_uri = ''
             self.fragment = ''
@@ -93,7 +108,7 @@ cdef class HTTPClientParser:
         This is a docstring for this class.
         """
         cdef cyhttp11.httpclient_parser _httpclient_parser
-        cdef public dict headers
+        cdef public HTTPHeaders headers
         cdef public int status_code
         cdef public str reason_phrase
         cdef public str http_version
@@ -123,7 +138,7 @@ cdef class HTTPClientParser:
 
         def reset(self):
             cyhttp11.httpclient_parser_init(&self._httpclient_parser)
-            self.headers = {}
+            self.headers = HTTPHeaders()
             self.status_code = -1
             self.reason_phrase = ''
             self.http_version = ''
