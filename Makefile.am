@@ -15,8 +15,8 @@ EXTRA_DIST = LICENSE LICENSE.mongrel2 README.rst \
 BUILT_SOURCES = cyhttp11.c http11_parser.c httpclient_parser.c
 CLEANFILES = cyhttp11.c http11_parser.c httpclient_parser.c
 
-.rl.c: Makefile $<
+.rl.c: Makefile.in $<
 	ragel -G2 -C $< -o $@
 
-cyhttp11.c: Makefile cyhttp11.pyx cyhttp11.pxd
+cyhttp11.c: Makefile.in cyhttp11.pyx cyhttp11.pxd
 	cython --verbose cyhttp11.pyx
