@@ -1,0 +1,37 @@
+Source: cyhttp11
+Priority: optional
+Section: python
+Maintainer: Nicolas Noirbent <nicolas@noirbent.fr>
+Build-Depends: cdbs (>= 0.4.89), debhelper (>= 7), python-all-dev, python-support (>= 0.8)
+Standards-Version: 3.9.2
+XS-Python-Version: >= 2.6
+
+Package: python-cyhttp11
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${python:Depends}
+Provides: ${python:Provides}
+Breaks: ${python:Breaks}
+XB-Python-Version: ${python:Versions}
+Description: Cython binding to mongrel2's HTTP/1.1 parser
+ cyhttp11 is a simple Cython binding to Mongrel2's HTTP/1.1 parser. It
+ aims to be dead simple and thus stays close to the original API. Its
+ main advantages is its non-blocking servers friendliness, since it
+ allows you to parse HTTP/1.1 from a (partial) string instead of from
+ a stream.
+
+Package: python-cyhttp11-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${python:Depends},
+ python-cyhttp11 (= ${binary:Version})
+XB-Python-Version: ${python:Versions}
+Description: Cython binding to mongrel2's HTTP/1.1 parser - debug symbols
+ cyhttp11 is a simple Cython binding to Mongrel2's HTTP/1.1 parser. It
+ aims to be dead simple and thus stays close to the original API. Its
+ main advantages is its non-blocking servers friendliness, since it
+ allows you to parse HTTP/1.1 from a (partial) string instead of from
+ a stream.
+ .
+ This package contains the extension built for the Python debug
+ interpreter.
