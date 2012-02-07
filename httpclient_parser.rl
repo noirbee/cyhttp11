@@ -34,7 +34,6 @@
 
 #include "httpclient_parser.h"
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -93,23 +92,23 @@ int httpclient_parser_init(httpclient_parser *parser)  {
 
 
 /** exec **/
-size_t httpclient_parser_execute(httpclient_parser *parser, const char *buffer, size_t len, size_t off)
+ssize_t httpclient_parser_execute(httpclient_parser *parser, const char *buffer, size_t len, size_t off)
 {
   if(len == 0) return 0;
 
   const char *p, *pe;
   int cs = parser->cs;
 
-  assert(off <= len && "offset past end of buffer");
+  if(off > len)
+    return -ERR_OFFSET_PAST_BUFFER;
 
   p = buffer+off;
   pe = buffer+len;
 
-  assert(pe - p == len - off && "pointers aren't same distance");
-
   %% write exec;
 
-  assert(p <= pe && "Buffer overflow after parsing.");
+  if(p > pe)
+    return -ERR_OVERFLOW_AFTER_PARSE;
 
   if (!httpclient_parser_has_error(parser)) {
       parser->cs = cs;
@@ -117,11 +116,16 @@ size_t httpclient_parser_execute(httpclient_parser *parser, const char *buffer, 
 
   parser->nread += p - (buffer + off);
 
-  assert(parser->nread <= len && "nread longer than length");
-  assert(parser->body_start <= len && "body starts after buffer end");
-  assert(parser->mark < len && "mark is after buffer end");
-  assert(parser->field_len <= len && "field has length longer than whole buffer");
-  assert(parser->field_start < len && "field starts after buffer end");
+  if(parser->nread > len)
+    return -ERR_NREAD_OVERFLOW;
+  if(parser->body_start > len)
+    return -ERR_BODY_OVERFLOW;
+  if(parser->mark >= len)
+    return -ERR_MARK_OVERFLOW;
+  if(parser->field_len > len)
+    return -ERR_FIELD_LEN_OVERFLOW;
+  if(parser->field_start >= len)
+    return -ERR_FIELD_START_OVERFLOW;
 
   return(parser->nread);
 }

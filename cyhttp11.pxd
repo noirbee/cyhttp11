@@ -5,6 +5,15 @@ cdef extern from 'http11_common.h':
         ctypedef void (*element_cb)(void *data, char *at, size_t length)
         ctypedef void (*field_cb)(void *data, char *field, size_t flen, char *value, size_t vlen)
 
+        cdef enum cyhttp_errors:
+            ERR_OFFSET_PAST_BUFFER = 1
+            ERR_OVERFLOW_AFTER_PARSE
+            ERR_NREAD_OVERFLOW
+            ERR_BODY_OVERFLOW
+            ERR_MARK_OVERFLOW
+            ERR_FIELD_LEN_OVERFLOW
+            ERR_FIELD_START_OVERFLOW
+
 cdef extern from 'http11_parser.h':
 
         struct http_parser:
@@ -37,7 +46,7 @@ cdef extern from 'http11_parser.h':
         int http_parser_init(http_parser *parser)
         # I don't think we need this function
         # int http_parser_finish(http_parser *parser)
-        size_t http_parser_execute(http_parser *parser, char *data, size_t len, size_t off)
+        ssize_t http_parser_execute(http_parser *parser, char *data, size_t len, size_t off)
         bint http_parser_has_error(http_parser *parser)
         bint http_parser_is_finished(http_parser *parser)
 

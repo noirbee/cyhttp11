@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([cyhttp11], [0.1.0], [nicolas@noirbent.fr])
+AC_INIT([cyhttp11], [0.1.1~dev], [nicolas@noirbent.fr])
 
 AC_CONFIG_HEADERS([config.h])
 

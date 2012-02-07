@@ -2,6 +2,22 @@
 
 cimport cyhttp11
 
+ctypedef Py_ssize_t ssize_t
+
+class CyHTTPException(Exception):
+    ERROR_STR = {
+        ERR_OFFSET_PAST_BUFFER : "Offset past end of buffer",
+        ERR_OVERFLOW_AFTER_PARSE : "Buffer overflow after parsing",
+        ERR_NREAD_OVERFLOW : "nread longer than length",
+        ERR_BODY_OVERFLOW : "Body starts after buffer end",
+        ERR_MARK_OVERFLOW : "Mark is after buffer end",
+        ERR_FIELD_LEN_OVERFLOW : "Field has length longer than whole buffer",
+        ERR_FIELD_START_OVERFLOW : "Field starts after buffer end",
+    }
+
+    def __str__(self):
+        return "CyHTTPException : %i %s" % (self.args[0], self.ERROR_STR[self.args[0]])
+
 cdef class HTTPHeaders(dict):
 
     def __contains__(self, key):
@@ -81,10 +97,13 @@ cdef class HTTPParser:
             self.reset()
 
         def execute(self, bytes):
-            return cyhttp11.http_parser_execute(&self._http_parser,
+            ret = cyhttp11.http_parser_execute(&self._http_parser,
                                                  bytes,
                                                  len(bytes),
                                                  self._http_parser.nread)
+            if ret < 0:
+                raise CyHTTPException(-ret)
+            return ret
 
         def is_finished(self):
             return cyhttp11.http_parser_is_finished(&self._http_parser)
@@ -125,10 +144,13 @@ cdef class HTTPClientParser:
             self.reset()
 
         def execute(self, bytes):
-            return cyhttp11.httpclient_parser_execute(&self._httpclient_parser,
+            ret = cyhttp11.httpclient_parser_execute(&self._httpclient_parser,
                                                  bytes,
                                                  len(bytes),
                                                  self._httpclient_parser.nread)
+            if ret < 0:
+                raise CyHTTPException(-ret)
+            return ret
 
         def is_finished(self):
             return cyhttp11.httpclient_parser_is_finished(&self._httpclient_parser)
