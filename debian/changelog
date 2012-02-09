@@ -1,4 +1,4 @@
-cyhttp11 (0.1.1~dev-1) unstable; urgency=low
+cyhttp11 (0.1.1-1) unstable; urgency=low
 
   [ Laurent Defert ]
   * New upstream release.
@@ -7,7 +7,7 @@ cyhttp11 (0.1.1~dev-1) unstable; urgency=low
   [ Nicolas Noirbent ]
   * copyright: add missing BSD-3-clause license text.
 
- -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Thu, 09 Feb 2012 16:36:30 +0100
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Thu, 09 Feb 2012 16:39:07 +0100
 
 cyhttp11 (0.1.0-1) unstable; urgency=low
 
