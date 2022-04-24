@@ -11,8 +11,8 @@ AM_INIT_AUTOMAKE([foreign])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL
-AM_PATH_PYTHON
-AC_PYTHON_DEVEL([>= 2.5])
+AM_PATH_PYTHON([3.9])
+AX_PYTHON_DEVEL()
 CYTHON_CHECK_VERSION([0.14.1])
 
 # Checks for libraries.

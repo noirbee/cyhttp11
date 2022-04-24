@@ -40,35 +40,43 @@ cdef void _http_field(void *data, char *field, size_t flen, char *value, size_t 
 
 cdef void _element_cb(void *data, char *attribute, char *at, size_t length):
     result = <object>data
-    setattr(result, attribute, at[:length])
+    setattr(result, unicode(attribute), at[:length])
 
 cdef void _request_method(void *data, char *at, size_t length):
-    _element_cb(data, 'request_method', at, length)
+    result = <object>data
+    result.request_method = at[:length]
 
 cdef void _request_uri(void *data, char *at, size_t length):
-    _element_cb(data, 'request_uri', at, length)
+    result = <object>data
+    result.request_uri = at[:length]
 
 cdef void _fragment(void *data, char *at, size_t length):
-    _element_cb(data, 'fragment', at, length)
+    result = <object>data
+    result.fragment = at[:length]
 
 cdef void _request_path(void *data, char *at, size_t length):
-    _element_cb(data, 'request_path', at, length)
+    result = <object>data
+    result.request_path = at[:length]
 
 cdef void _query_string(void *data, char *at, size_t length):
-    _element_cb(data, 'query_string', at, length)
+    result = <object>data
+    result.query_string = at[:length]
 
 cdef void _status_code(void *data, char *at, size_t length):
     result = <object>data
     result.status_code = int(at[:length])
 
 cdef void _reason_phrase(void *data, char *at, size_t length):
-    _element_cb(data, 'reason_phrase', at, length)
+    result = <object>data
+    result.reason_phrase = at[:length]
 
 cdef void _http_version(void *data, char *at, size_t length):
-    _element_cb(data, 'http_version', at, length)
+    result = <object>data
+    result.http_version = at[:length]
 
 cdef void _header_done(void *data, char *at, size_t length):
-    _element_cb(data, 'body', at, length)
+    result = <object>data
+    result.body = at[:length]
 
 cdef class HTTPParser:
         """
@@ -76,13 +84,13 @@ cdef class HTTPParser:
         """
         cdef cyhttp11.http_parser _http_parser
         cdef public HTTPHeaders headers
-        cdef public str request_method
-        cdef public str request_uri
-        cdef public str fragment
-        cdef public str request_path
-        cdef public str query_string
-        cdef public str http_version
-        cdef public str body
+        cdef public bytes request_method
+        cdef public bytes request_uri
+        cdef public bytes fragment
+        cdef public bytes request_path
+        cdef public bytes query_string
+        cdef public bytes http_version
+        cdef public bytes body
 
         def __cinit__(self):
             self._http_parser.data = <void*>self
@@ -114,13 +122,13 @@ cdef class HTTPParser:
         def reset(self):
             cyhttp11.http_parser_init(&self._http_parser)
             self.headers = HTTPHeaders()
-            self.request_method = ''
-            self.request_uri = ''
-            self.fragment = ''
-            self.request_path = ''
-            self.query_string = ''
-            self.http_version = ''
-            self.body = ''
+            self.request_method = b''
+            self.request_uri = b''
+            self.fragment = b''
+            self.request_path = b''
+            self.query_string = b''
+            self.http_version = b''
+            self.body = b''
 
 cdef class HTTPClientParser:
         """
@@ -129,9 +137,9 @@ cdef class HTTPClientParser:
         cdef cyhttp11.httpclient_parser _httpclient_parser
         cdef public HTTPHeaders headers
         cdef public int status_code
-        cdef public str reason_phrase
-        cdef public str http_version
-        cdef public str body
+        cdef public bytes reason_phrase
+        cdef public bytes http_version
+        cdef public bytes body
 
         def __cinit__(self):
             self._httpclient_parser.data = <void*>self
@@ -162,7 +170,6 @@ cdef class HTTPClientParser:
             cyhttp11.httpclient_parser_init(&self._httpclient_parser)
             self.headers = HTTPHeaders()
             self.status_code = -1
-            self.reason_phrase = ''
-            self.http_version = ''
-            self.body = ''
-
+            self.reason_phrase = b''
+            self.http_version = b''
+            self.body = b''
